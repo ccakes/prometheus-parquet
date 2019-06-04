@@ -1,0 +1,64 @@
+# Based on the "trust" template v0.1.2
+# https://github.com/japaric/trust/tree/v0.1.2
+
+dist: bionic
+language: rust
+services: docker
+sudo: required
+
+env:
+  global:
+    # TODO Update this to match the name of your project.
+    - CRATE_NAME=prometheus-parquet
+
+matrix:
+  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
+  # don't need
+  include:
+    # Linux
+    - env: TARGET=x86_64-unknown-linux-gnu
+
+    # OSX
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+
+before_install:
+  - set -e
+  - rustup self update
+
+install:
+  - source ~/.cargo/env || true
+
+script:
+  - cargo build --target $TARGET --release
+
+after_script: set +e
+
+before_deploy:
+  - cp target/$TARGET/release/prometheus-parquet $CRATE_NAME-$TRAVIS_TAG-$TARGET
+
+deploy:
+  api_key:
+    secure: "WelDW6tCdMs2oycNECmXSSKugNrLqKtHrUwOngjDhe7fVxt++25XIyYPn4hsbixIJ2mAhpVzlB/aNa49HKHYWCDxRmFY2BQErLNY1MZwPn/CPo0wh6sCIqQGE8B7WQq6g4/eTtzmDxtI+CSyF2yKF2LIVmzo9ehkl97ZF/64jNbEUT5wTyEEuEMAx1F6bSLV7KPjjIWd8DSrdZJaIaJin0DUqIYarecRsMi0p+jbjVShxuGm7oIjn6lFo/aUdDqmF1skg3/KUfHzAaY02HV07SFrwLU5jNmT/kJATeLLRzYu1x9FBRAvR5SRKLk+FyXdszFQodClJqq6uZdQtTXswvYmQPb+lWiqGR1+EEWfKz5xEJOFh+CrxnbdsiSv3i0XSTjVmYQk5uSEJsiDBjbBVyw6x6U2jZRiJhFj+Muirl9OFjQ3k3xoOSoapy6Oaq9bUKhvXCdd4NSGW2ZCC6s/TiwzWwy0MiGMhfyTx8W2wcmUQaK2gHIfDM5pTw/C3vhntED4wJYbd9tIN9XdrzcI7imfzGsoBqRN9nBWrEWQwiNATD9TRKa8iwwrX9i7GyMA260yMjE0LZSVLVHw0sKLlYGWIDxPvVSuSfPVpFzdFgEbCHh2gvNDxxsTQw9q2PkeeMaH4I9HsMt+pkMtFOG7c+eEiUT2A+ebSx+ucARE/8U="
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET
+  on:
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+  provider: releases
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+branches:
+  only:
+    # release tags
+    - /^v\d+\.\d+\.\d+.*$/
+    - master
+
+notifications:
+  email:
+    on_success: never
