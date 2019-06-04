@@ -1,0 +1,20 @@
+[package]
+name = "prometheus-parquet"
+version = "0.1.0"
+authors = ["Cameron Daniel <cam.daniel@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+log = "0.4"
+fern = { version = "0.5", features = ["colored"] }
+structopt = "0.2"
+
+serde = "1"
+serde_derive = "1"
+serde_json = "1"
+
+chrono = "0.4"
+minreq = { version = "1.1", features = ["https"] }
+parquet = { git = "https://github.com/tureus/arrow", branch = "parquet_derive" }
+parquet_derive = { git = "https://github.com/tureus/arrow", branch = "parquet_derive" }
+prometheus-parse = { git = "https://github.com/ccakes/prometheus-parse-rs" }
