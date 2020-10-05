@@ -1,10 +1,14 @@
-use parquet::record::RecordWriter;
+use parquet::file::writer::RowGroupWriter;
 use parquet_derive::ParquetRecordWriter;
 use prometheus_parse::*;
 
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::io;
+
+pub trait RecordWriter<T> {
+    fn write_to_row_group(&self, row_group_writer: &mut Box<dyn RowGroupWriter>);
+}
 
 #[derive(Clone, Debug, ParquetRecordWriter)]
 pub struct Metric {

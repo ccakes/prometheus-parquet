@@ -1,10 +1,9 @@
-use crate::types::Metric;
+use crate::types::{Metric, RecordWriter};
 
 use parquet::basic::{Type as PhysicalType, LogicalType, Repetition};
 use parquet::schema::types::Type;
 use parquet::file::properties::WriterProperties;
 use parquet::file::writer::{FileWriter, SerializedFileWriter};
-use parquet::record::RecordWriter;
 
 use std::error::Error;
 use std::fs;
@@ -38,7 +37,7 @@ pub fn write(output: PathBuf, metrics: Vec<Metric>) -> Result<(), Box<dyn Error>
 
     fields.push(
         Rc::new(Type::primitive_type_builder("labels", PhysicalType::BYTE_ARRAY)
-            .with_logical_type(LogicalType::UTF8)
+            .with_logical_type(LogicalType::JSON)
             .with_repetition(Repetition::REQUIRED)
             .build()?
         )
